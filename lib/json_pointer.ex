@@ -49,7 +49,21 @@ defmodule JSONPointer do
   end
 
   @doc """
-  Resolves a JSON Pointer `expr` against the given `document` and 
+  Unescapes a reference token and returns the original string
+
+      iex> JSONPointer.unescape("~1esc~0aped")
+      "/esc~aped"
+
+  """
+  @spec unescape(String.t) :: String.t
+  def unescape(string) do
+    string
+    |> String.replace("~1", "/")
+    |> String.replace("~0", "~")
+  end
+
+  @doc """
+  Resolves a JSON Pointer `expr` against the given `document` and
   returns the referenced value.
 
   Raises an `ArgumentError` exception if an error occurs
@@ -123,13 +137,7 @@ defmodule JSONPointer do
     end
   end
 
-  defp unescape(string) do
-    string
-    |> String.replace("~1", "/")
-    |> String.replace("~0", "~")
-  end
-
-  defp is_numeric?(token), do: Regex.match?(~r/\A\d+\Z/, token) 
+  defp is_numeric?(token), do: Regex.match?(~r/\A\d+\Z/, token)
 
   defp get_item_at_index([item|_], 0),     do: {:ok, item}
   defp get_item_at_index([], _index),      do: :error

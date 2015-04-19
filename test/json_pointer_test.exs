@@ -50,6 +50,12 @@ defmodule JSONPointerTest do
     assert "~1esc~0aped~1" == JSONPointer.escape("/esc~aped/")
   end
 
+  test "unescape" do
+    assert "escaped"    == JSONPointer.unescape("escaped")
+    assert "esc~aped"   == JSONPointer.unescape("esc~0aped")
+    assert "/esc~aped/" == JSONPointer.unescape("~1esc~0aped~1")
+  end
+
   #
   # RFC-6901 test suite
   #
