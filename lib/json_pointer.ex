@@ -83,7 +83,7 @@ defmodule JSONPointer do
   @spec resolve(json_object, String.t) :: {:ok, json_value} | {:error, String.t}
   def resolve(document, ""), do: {:ok, document}
   def resolve(document, _expr = <<"/", expr::binary>>), do: do_resolve(document, String.split(expr, "/"))
-  def resolve(document, _expr), do: {:error, "must contain zero or more reference token, each prefixed with \"/\""}
+  def resolve(_document, _expr), do: {:error, "must contain zero or more reference token, each prefixed with \"/\""}
 
   #
   # Private interface
