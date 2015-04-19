@@ -2,12 +2,12 @@ defmodule JSONPointer do
 
   @moduledoc """
 
-  Implementation of [RFC 6901](https://tools.ietf.org/html/rfc6901) 
+  Implementation of [RFC 6901](https://tools.ietf.org/html/rfc6901)
   which defines a string syntax for identifying a specific value within a JSON document.
 
   ## Usage
 
-  *Preleminary note: the actual parsing of the JSON document is outside of the scope of this library, 
+  *Preleminary note: the actual parsing of the JSON document is outside of the scope of this library,
   feel free to select on the several libraries available.*
 
   The `resolve/2` and `resolve!/2` functions expect to receive documents in the form of nested maps and lists,
@@ -25,10 +25,10 @@ defmodule JSONPointer do
       iex> JSONPointer.resolve(document, "/deeply/nested/values/0")
       {:ok, %{"x" => 1}}
       iex> JSONPointer.resolve(document, "/deeply/nested/values/1/x")
-      {:ok, 2}      
+      {:ok, 2}
       iex> JSONPointer.resolve(document, "/list/4")
       {:error, "index 4 out of bounds in [1, 2, 3]"}
-  
+
   """
 
   @type json_object :: map
@@ -63,7 +63,7 @@ defmodule JSONPointer do
   @spec resolve!(json_object, String.t) :: json_value | no_return
   def resolve!(document, expr) do
     case resolve(document, expr) do
-      {:ok, value} 
+      {:ok, value}
         -> value
       {:error, message}
         -> raise ArgumentError, message
@@ -71,7 +71,7 @@ defmodule JSONPointer do
   end
 
   @doc """
-  Resolves a JSON Pointer `expr` against the given `document` and 
+  Resolves a JSON Pointer `expr` against the given `document` and
   returns `{:ok, value}` on success and `{:error, message}` otherwise.
 
       iex> JSONPointer.resolve(%{"key" => "value"}, "/key")
@@ -88,25 +88,25 @@ defmodule JSONPointer do
   #
   # Private interface
   #
-  
+
   defp do_resolve(document, []),   do: {:ok, document}
   defp do_resolve(document, [token|rest]) do
     token = unescape(token)
-    cond do      
+    cond do
       is_numeric?(token)
         -> do_resolve_array_index(document, token, rest)
-      token 
+      token
         -> do_resolve_token(document, token, rest)
     end
   end
-  
+
   defp do_resolve_token(nil, token, _), do: {:error, "reference token not found: #{inspect token}"}
   defp do_resolve_token(document, token, _) when is_list(document), do: {:error, "invalid array index: #{inspect token}"}
   defp do_resolve_token(document, token, rest) do
     case Dict.fetch(document, token) do
-      :error 
+      :error
         -> {:error, "reference token not found: #{inspect token}"}
-      {:ok, value} 
+      {:ok, value}
         -> do_resolve(value, rest)
     end
   end
@@ -116,9 +116,9 @@ defmodule JSONPointer do
   defp do_resolve_array_index(document, token, rest) do
     index = Integer.parse(token) |> elem(0)
     case get_item_at_index(document, index) do
-      :error 
+      :error
         -> {:error, "index #{index} out of bounds in #{inspect document}"}
-      {:ok, value} 
+      {:ok, value}
         -> do_resolve(value, rest)
     end
   end
