@@ -129,18 +129,14 @@ defmodule JSONPointer do
   defp do_resolve_array_index(_document, index = <<"0", _, _::binary>>, _rest), do: {:error, "index with leading zeros not allowed: #{inspect index}"}
   defp do_resolve_array_index(document, token, rest) do
     index = Integer.parse(token) |> elem(0)
-    case get_item_at_index(document, index) do
+    case Enum.at(document, index, :error) do
       :error
         -> {:error, "index #{index} out of bounds in #{inspect document}"}
-      {:ok, value}
+      value
         -> do_resolve(value, rest)
     end
   end
 
   defp is_numeric?(token), do: Regex.match?(~r/\A\d+\Z/, token)
-
-  defp get_item_at_index([item|_], 0),     do: {:ok, item}
-  defp get_item_at_index([], _index),      do: :error
-  defp get_item_at_index([_|rest], index), do: get_item_at_index(rest, index-1)
 
 end
