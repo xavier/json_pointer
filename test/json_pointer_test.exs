@@ -33,7 +33,8 @@ defmodule JSONPointerTest do
         ]
       },
       "b" => nil,
-      "c" => [111, 222, 333]
+      "c" => [111, 222, 333],
+      "200" => [%{"300" => "ok"}]
     }
 
     {:ok, %{rfc_document: rfc_document, document: document}}
@@ -148,6 +149,10 @@ defmodule JSONPointerTest do
 
   test "non numeric array index", %{document: document} do
     assert {:error, "invalid array index: \"abc\""} == JSONPointer.resolve(document, "/c/abc")
+  end
+
+  test "numeric key vs array index", %{document: document} do
+    assert {:ok, "ok"} == JSONPointer.resolve(document, "/200/0/300")
   end
 
   #

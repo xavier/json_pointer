@@ -112,12 +112,16 @@ defmodule JSONPointer do
   defp do_resolve(document, [token | rest]) do
     token = unescape(token)
 
-    cond do
-      is_numeric?(token) ->
-        do_resolve_array_index(document, token, rest)
+    case do_resolve_token(document, token, rest) do
+      {:ok, value} ->
+        {:ok, value}
 
-      token ->
-        do_resolve_token(document, token, rest)
+      {:error, _} = error ->
+        if is_numeric?(token) do
+          do_resolve_array_index(document, token, rest)
+        else
+          error
+        end
     end
   end
 
