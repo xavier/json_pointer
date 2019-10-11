@@ -117,7 +117,7 @@ defmodule JSONPointer do
   defp do_resolve_token(nil, token, _), do: {:error, "reference token not found: #{inspect token}"}
   defp do_resolve_token(document, token, _) when is_list(document), do: {:error, "invalid array index: #{inspect token}"}
   defp do_resolve_token(document, token, rest) do
-    case Dict.fetch(document, token) do
+    case Map.fetch(document, token) do
       :error
         -> {:error, "reference token not found: #{inspect token}"}
       {:ok, value}
