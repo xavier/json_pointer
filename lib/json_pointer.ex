@@ -6,8 +6,8 @@ defmodule JSONPointer do
 
   ## Usage
 
-  *Preleminary note: the actual parsing of the JSON document is outside of the scope of this library,
-  feel free to select on the several libraries available.*
+  *Preliminary note: the actual parsing of the JSON document is outside of the scope of this library,
+  feel free to select one of the several libraries available.*
 
   The `resolve/2` and `resolve!/2` functions expect to receive documents in the form of nested maps and lists,
   as produced by most JSON parsers.
