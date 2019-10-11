@@ -5,7 +5,7 @@ defmodule JsonPointer.Mixfile do
     [
       app: :json_pointer,
       version: "0.0.2",
-      elixir: "~> 1.0",
+      elixir: "~> 1.7",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -33,7 +33,10 @@ defmodule JsonPointer.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:earmark, "~> 0.1", only: :dev}, {:ex_doc, "~> 0.7", only: :dev}]
+    [
+      {:earmark, "~> 1.4.1", only: :dev},
+      {:ex_doc, "~> 0.21.2", only: :dev}
+    ]
   end
 
   defp description do
