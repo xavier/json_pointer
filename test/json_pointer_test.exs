@@ -4,20 +4,19 @@ defmodule JSONPointerTest do
   doctest JSONPointer
 
   setup do
-
     # Taken from RFC 6901
     # https://tools.ietf.org/html/rfc6901
     rfc_document = %{
-      "foo"  => ["bar", "baz"],
-      ""     => 0,
-      "a/b"  => 1,
-      "c%d"  => 2,
-      "e^f"  => 3,
-      "g|h"  => 4,
+      "foo" => ["bar", "baz"],
+      "" => 0,
+      "a/b" => 1,
+      "c%d" => 2,
+      "e^f" => 3,
+      "g|h" => 4,
       "i\\j" => 5,
       "k\"l" => 6,
-      " "    => 7,
-      "m~n"  => 8
+      " " => 7,
+      "m~n" => 8
     }
 
     # Some document with complex nesting
@@ -25,12 +24,12 @@ defmodule JSONPointerTest do
       "a" => %{
         "x" => %{
           "a" => 1,
-          "b" => 2,
+          "b" => 2
         },
         "y" => [
           %{"a" => 11},
           %{"b" => 22},
-          nil,
+          nil
         ]
       },
       "b" => nil,
@@ -45,14 +44,14 @@ defmodule JSONPointerTest do
   #
 
   test "escape" do
-    assert "escaped"       == JSONPointer.escape("escaped")
-    assert "esc~0aped"     == JSONPointer.escape("esc~aped")
+    assert "escaped" == JSONPointer.escape("escaped")
+    assert "esc~0aped" == JSONPointer.escape("esc~aped")
     assert "~1esc~0aped~1" == JSONPointer.escape("/esc~aped/")
   end
 
   test "unescape" do
-    assert "escaped"    == JSONPointer.unescape("escaped")
-    assert "esc~aped"   == JSONPointer.unescape("esc~0aped")
+    assert "escaped" == JSONPointer.unescape("escaped")
+    assert "esc~aped" == JSONPointer.unescape("esc~0aped")
     assert "/esc~aped/" == JSONPointer.unescape("~1esc~0aped~1")
   end
 
@@ -124,7 +123,8 @@ defmodule JSONPointerTest do
   end
 
   test "index out of bounds", %{document: document} do
-    assert {:error, "index 99 out of bounds in [111, 222, 333]"} == JSONPointer.resolve(document, "/c/99")
+    assert {:error, "index 99 out of bounds in [111, 222, 333]"} ==
+             JSONPointer.resolve(document, "/c/99")
   end
 
   test "index on nil", %{document: document} do
@@ -132,15 +132,18 @@ defmodule JSONPointerTest do
   end
 
   test "nil traversal", %{document: document} do
-    assert {:error, "reference token not found: \"bogus\""} == JSONPointer.resolve(document, "/b/bogus/z")
+    assert {:error, "reference token not found: \"bogus\""} ==
+             JSONPointer.resolve(document, "/b/bogus/z")
   end
 
   test "nil traversal in array", %{document: document} do
-    assert {:error, "reference token not found: \"bogus\""} == JSONPointer.resolve(document, "/a/y/2/bogus/z")
+    assert {:error, "reference token not found: \"bogus\""} ==
+             JSONPointer.resolve(document, "/a/y/2/bogus/z")
   end
 
   test "index with leading zeroes", %{document: document} do
-    assert {:error, "index with leading zeros not allowed: \"01\""} == JSONPointer.resolve(document, "/c/01")
+    assert {:error, "index with leading zeros not allowed: \"01\""} ==
+             JSONPointer.resolve(document, "/c/01")
   end
 
   test "non numeric array index", %{document: document} do
@@ -162,9 +165,9 @@ defmodule JSONPointerTest do
 
   test "resolve with exception", %{document: document} do
     assert 22 == JSONPointer.resolve!(document, "/a/y/1/b")
+
     assert_raise ArgumentError, fn ->
       JSONPointer.resolve!(document, "bogus query")
     end
   end
-
 end

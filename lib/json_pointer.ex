@@ -1,5 +1,4 @@
 defmodule JSONPointer do
-
   @moduledoc """
 
   Implementation of [RFC 6901](https://tools.ietf.org/html/rfc6901)
@@ -32,7 +31,7 @@ defmodule JSONPointer do
   """
 
   @type json_object :: map
-  @type json_value :: nil | true | false | list | float | integer | String.t | json_object
+  @type json_value :: nil | true | false | list | float | integer | String.t() | json_object
 
   @doc """
   Escapes a string in order to be usable as reference token.
@@ -41,7 +40,7 @@ defmodule JSONPointer do
       "~1esc~0aped"
 
   """
-  @spec escape(String.t) :: String.t
+  @spec escape(String.t()) :: String.t()
   def escape(string) do
     string
     |> String.replace("~", "~0")
@@ -55,7 +54,7 @@ defmodule JSONPointer do
       "/esc~aped"
 
   """
-  @spec unescape(String.t) :: String.t
+  @spec unescape(String.t()) :: String.t()
   def unescape(string) do
     string
     |> String.replace("~1", "/")
@@ -74,13 +73,14 @@ defmodule JSONPointer do
       ** (ArgumentError) reference token not found: "bogus"
 
   """
-  @spec resolve!(json_object, String.t) :: json_value | no_return
+  @spec resolve!(json_object, String.t()) :: json_value | no_return
   def resolve!(document, expr) do
     case resolve(document, expr) do
-      {:ok, value}
-        -> value
-      {:error, message}
-        -> raise ArgumentError, message
+      {:ok, value} ->
+        value
+
+      {:error, message} ->
+        raise ArgumentError, message
     end
   end
 
@@ -94,49 +94,66 @@ defmodule JSONPointer do
       {:error, "reference token not found: \\"bogus\\""}
 
   """
-  @spec resolve(json_object, String.t) :: {:ok, json_value} | {:error, String.t}
+  @spec resolve(json_object, String.t()) :: {:ok, json_value} | {:error, String.t()}
   def resolve(document, ""), do: {:ok, document}
-  def resolve(document, _expr = <<"/", expr::binary>>), do: do_resolve(document, String.split(expr, "/"))
-  def resolve(_document, _expr), do: {:error, "must contain zero or more reference token, each prefixed with \"/\""}
+
+  def resolve(document, _expr = <<"/", expr::binary>>),
+    do: do_resolve(document, String.split(expr, "/"))
+
+  def resolve(_document, _expr),
+    do: {:error, "must contain zero or more reference token, each prefixed with \"/\""}
 
   #
   # Private interface
   #
 
-  defp do_resolve(document, []),   do: {:ok, document}
-  defp do_resolve(document, [token|rest]) do
+  defp do_resolve(document, []), do: {:ok, document}
+
+  defp do_resolve(document, [token | rest]) do
     token = unescape(token)
+
     cond do
-      is_numeric?(token)
-        -> do_resolve_array_index(document, token, rest)
-      token
-        -> do_resolve_token(document, token, rest)
+      is_numeric?(token) ->
+        do_resolve_array_index(document, token, rest)
+
+      token ->
+        do_resolve_token(document, token, rest)
     end
   end
 
-  defp do_resolve_token(nil, token, _), do: {:error, "reference token not found: #{inspect token}"}
-  defp do_resolve_token(document, token, _) when is_list(document), do: {:error, "invalid array index: #{inspect token}"}
+  defp do_resolve_token(nil, token, _),
+    do: {:error, "reference token not found: #{inspect(token)}"}
+
+  defp do_resolve_token(document, token, _) when is_list(document),
+    do: {:error, "invalid array index: #{inspect(token)}"}
+
   defp do_resolve_token(document, token, rest) do
     case Map.fetch(document, token) do
-      :error
-        -> {:error, "reference token not found: #{inspect token}"}
-      {:ok, value}
-        -> do_resolve(value, rest)
+      :error ->
+        {:error, "reference token not found: #{inspect(token)}"}
+
+      {:ok, value} ->
+        do_resolve(value, rest)
     end
   end
 
-  defp do_resolve_array_index(nil, token, _rest), do: {:error, "cannot find index #{token} on nil"}
-  defp do_resolve_array_index(_document, index = <<"0", _, _::binary>>, _rest), do: {:error, "index with leading zeros not allowed: #{inspect index}"}
+  defp do_resolve_array_index(nil, token, _rest),
+    do: {:error, "cannot find index #{token} on nil"}
+
+  defp do_resolve_array_index(_document, index = <<"0", _, _::binary>>, _rest),
+    do: {:error, "index with leading zeros not allowed: #{inspect(index)}"}
+
   defp do_resolve_array_index(document, token, rest) do
     index = Integer.parse(token) |> elem(0)
+
     case Enum.at(document, index, :error) do
-      :error
-        -> {:error, "index #{index} out of bounds in #{inspect document}"}
-      value
-        -> do_resolve(value, rest)
+      :error ->
+        {:error, "index #{index} out of bounds in #{inspect(document)}"}
+
+      value ->
+        do_resolve(value, rest)
     end
   end
 
   defp is_numeric?(token), do: Regex.match?(~r/\A\d+\Z/, token)
-
 end
