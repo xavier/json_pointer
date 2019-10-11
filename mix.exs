@@ -7,9 +7,9 @@ defmodule JsonPointer.Mixfile do
      elixir: "~> 1.0",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps,
-     description: description,
-     package: package,
+     deps: deps(),
+     description: description(),
+     package: package(),
      source_url: "https://github.com/xavier/json_pointer",
      homepage_url: "https://github.com/xavier/json_pointer"]
   end
