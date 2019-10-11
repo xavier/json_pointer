@@ -9,10 +9,11 @@ Add a dependency to your project `mix.exs`:
 ```Elixir
 
 def deps do
-  [{:json_pointer, "~> 0.0.1"}]
+  [{:json_pointer, "~> 0.1.0"}]
 end
 
 ```
+
 ## Usage
 
 ```Elixir
@@ -46,3 +47,11 @@ JSONPointer.resolve(document, "/list/4")
 ## Dependencies
 
 This library works with deserialized documents and does not include a JSON parser.
+
+## Contributors
+
+In order of appearance:
+
+- [Xavier Defrang](https://github.com/xavier)
+- [Dmitrii Dimandt](https://github.com/dmitriid)
+- [Roman Heinrich](https://github.com/mindreframer)
